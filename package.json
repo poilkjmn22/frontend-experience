@@ -1,0 +1,23 @@
+{
+  "name": "@whnz/frontend-experience-monorepo",
+  "private": true,
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "pnpm -r build",
+    "typecheck": "tsc -b",
+    "dev": "pnpm -r dev",
+    "lint": "pnpm -r lint",
+    "release": "pnpm -r publish --access public"
+  },
+  "devDependencies": {
+    "tsup": "^8.0.0",
+    "typescript": "^5.3.0"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "packageManager": "pnpm@10.28.2"
+}

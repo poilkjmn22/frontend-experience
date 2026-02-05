@@ -1,0 +1,11 @@
+{
+  "files": [],
+  "references": [
+    { "path": "packages/core"},
+    { "path": "packages/error"},
+    { "path": "packages/vitals"},
+    { "path": "packages/css"},
+    { "path": "packages/react"},
+    { "path": "packages/preset-spa"}
+  ]
+}

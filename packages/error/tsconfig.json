@@ -1,0 +1,19 @@
+{ 
+  "extends": "../../tsconfig.package.json",
+  "references": [
+    { "path": "../core" }
+  ],
+  "include": [
+      "src/**/*.ts",
+      "src/**/*.tsx",
+      "src/**/*.vue",
+      "src/**/*.js",
+      "src/**/*.jsx"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist",
+    "**/*.test.ts",
+    "**/*.spec.ts"
+  ]
+}

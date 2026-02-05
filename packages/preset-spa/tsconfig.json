@@ -1,0 +1,21 @@
+{ 
+  "extends": "../../tsconfig.package.json",
+  "references": [
+    { "path": "../vitals" },
+    { "path": "../error" },
+    { "path": "../css" }
+  ],
+  "include": [
+      "src/**/*.ts",
+      "src/**/*.tsx",
+      "src/**/*.vue",
+      "src/**/*.js",
+      "src/**/*.jsx"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist",
+    "**/*.test.ts",
+    "**/*.spec.ts"
+  ]
+}

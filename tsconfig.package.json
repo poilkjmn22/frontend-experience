@@ -1,0 +1,27 @@
+{
+  "extends": "./tsconfig.base.json",
+  "compilerOptions": {
+    "composite": true,
+    "baseUrl": ".",
+    "paths": {
+      "@whnz/frontend-experience-core": ["packages/core/src"],
+      "@whnz/frontend-experience-error": ["packages/error/src"],
+      "@whnz/frontend-experience-vitals": ["packages/vitals/src"],
+      "@whnz/frontend-experience-css": ["packages/css/src"],
+      "@whnz/frontend-experience-react": ["packages/react/src"]
+    }
+  },
+  "include": [
+      "src/**/*.ts",
+      "src/**/*.tsx",
+      "src/**/*.vue",
+      "src/**/*.js",
+      "src/**/*.jsx"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist",
+    "**/*.test.ts",
+    "**/*.spec.ts"
+  ]
+}
