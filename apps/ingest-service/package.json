@@ -2,7 +2,6 @@
   "name": "@whnz/frontend-experience-ingest",
   "version": "1.0.0",
   "description": "",
-  "private": true,
   "type": "module",
   "main": "dist/index.js",
   "sideEffects": false,
