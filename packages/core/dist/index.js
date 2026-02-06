@@ -64,5 +64,5 @@ function initCore(options) {
 }
 
 export { getContext, initCore, report, setRoute, setUserId };
-//# sourceMappingURL=index.mjs.map
-//# sourceMappingURL=index.mjs.map
+//# sourceMappingURL=index.js.map
+//# sourceMappingURL=index.js.map

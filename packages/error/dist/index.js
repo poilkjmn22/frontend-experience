@@ -31,5 +31,5 @@ function errorPlugin() {
 }
 
 export { errorPlugin };
-//# sourceMappingURL=index.mjs.map
-//# sourceMappingURL=index.mjs.map
+//# sourceMappingURL=index.js.map
+//# sourceMappingURL=index.js.map

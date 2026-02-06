@@ -15,5 +15,5 @@ function spaPreset(options = {}) {
 }
 
 export { spaPreset };
-//# sourceMappingURL=index.mjs.map
-//# sourceMappingURL=index.mjs.map
+//# sourceMappingURL=index.js.map
+//# sourceMappingURL=index.js.map

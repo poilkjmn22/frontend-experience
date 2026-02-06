@@ -42,5 +42,5 @@ function withProfiler(Component, id) {
 }
 
 export { ErrorBoundary, withProfiler };
-//# sourceMappingURL=index.mjs.map
-//# sourceMappingURL=index.mjs.map
+//# sourceMappingURL=index.js.map
+//# sourceMappingURL=index.js.map
