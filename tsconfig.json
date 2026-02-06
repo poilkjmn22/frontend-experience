@@ -6,6 +6,8 @@
     { "path": "packages/vitals"},
     { "path": "packages/css"},
     { "path": "packages/react"},
-    { "path": "packages/preset-spa"}
+    { "path": "packages/preset-spa"},
+
+    { "path": "apps/ingest-service"}
   ]
 }
