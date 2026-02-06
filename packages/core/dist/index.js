@@ -47,6 +47,32 @@ function report(event) {
   }
 }
 
+// src/longtask.ts
+function initLongTaskObserver() {
+  if (typeof PerformanceObserver === "undefined" || !PerformanceObserver.supportedEntryTypes.includes("longtask")) {
+    return;
+  }
+  const observer = new PerformanceObserver((list) => {
+    var _a;
+    for (const entry of list.getEntries()) {
+      const anyEntry = entry;
+      const attribution = (_a = anyEntry.attribution) == null ? void 0 : _a[0];
+      report({
+        type: "longtask",
+        duration: entry.duration,
+        timestamp: Date.now(),
+        extra: {
+          startTime: entry.startTime,
+          blockingTime: Math.max(0, entry.duration - 50),
+          name: attribution == null ? void 0 : attribution.name,
+          containerType: attribution == null ? void 0 : attribution.containerType
+        }
+      });
+    }
+  });
+  observer.observe({ entryTypes: ["longtask"] });
+}
+
 // src/init.ts
 var inited = false;
 function initCore(options) {
@@ -61,6 +87,7 @@ function initCore(options) {
   });
   initReporter(options.reporter);
   initSampler((_a = options.sampleRate) != null ? _a : 1);
+  initLongTaskObserver();
 }
 
 export { getContext, initCore, report, setRoute, setUserId };

@@ -1,6 +1,7 @@
 { 
   "extends": "../../tsconfig.package.json",
   "references": [
+    { "path": "../core" },
     { "path": "../vitals" },
     { "path": "../error" },
     { "path": "../css" }

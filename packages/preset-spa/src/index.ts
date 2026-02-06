@@ -1,6 +1,7 @@
 import { vitalsPlugin } from '@whnz/frontend-experience-vitals';
 import { errorPlugin } from '@whnz/frontend-experience-error';
 import { cssPlugin } from '@whnz/frontend-experience-css';
+import { routePlugin } from './route';
 
 export interface Plugin {
   name: string;
@@ -20,6 +21,7 @@ export function spaPreset(
     cssPlugin({
       keySelectors: options.keySelectors,
       detectWhiteScreen: true
-    })
+    }),
+    routePlugin()
   ];
 }
