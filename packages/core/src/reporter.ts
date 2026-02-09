@@ -40,12 +40,12 @@ function scheduleFlush() {
   if (scheduled) return;
   scheduled = true;
 
-  requestIdleCallback(
+  setTimeout(
     () => {
       scheduled = false;
       flushLoop();
     },
-    { timeout: 2000 },
+    1000,
   );
 }
 

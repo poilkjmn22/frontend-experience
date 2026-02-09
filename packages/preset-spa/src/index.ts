@@ -25,7 +25,6 @@ export function spaPreset(
     }),
     routePlugin(),
     longTaskPlugin({
-      reportInterval: options.reportInterval,
       blockingThreshold: options.blockingThreshold,
     }),
   ];

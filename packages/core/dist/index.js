@@ -63,12 +63,12 @@ function enqueue(payload) {
 function scheduleFlush() {
   if (scheduled) return;
   scheduled = true;
-  requestIdleCallback(
+  setTimeout(
     () => {
       scheduled = false;
       flushLoop();
     },
-    { timeout: 2e3 }
+    1e3
   );
 }
 function flushLoop() {

@@ -90,7 +90,6 @@ function spaPreset(options = {}) {
     }),
     routePlugin(),
     longTaskPlugin({
-      reportInterval: options.reportInterval,
       blockingThreshold: options.blockingThreshold
     })
   ];
