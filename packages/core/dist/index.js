@@ -31,7 +31,13 @@ function shouldSample() {
 // src/reporter.ts
 var reporterFn = null;
 function initReporter(fn) {
-  reporterFn = fn;
+  if (typeof fn === "string") {
+    reporterFn = (event) => {
+      navigator.sendBeacon(fn, JSON.stringify(event));
+    };
+  } else {
+    reporterFn = fn;
+  }
 }
 function report(event) {
   if (!reporterFn) return;
@@ -42,35 +48,31 @@ function report(event) {
     timestamp: event.timestamp || Date.now()
   };
   try {
-    reporterFn(payload);
+    enqueue(payload);
   } catch (e) {
   }
 }
-
-// src/longtask.ts
-function initLongTaskObserver() {
-  if (typeof PerformanceObserver === "undefined" || !PerformanceObserver.supportedEntryTypes.includes("longtask")) {
-    return;
-  }
-  const observer = new PerformanceObserver((list) => {
-    var _a;
-    for (const entry of list.getEntries()) {
-      const anyEntry = entry;
-      const attribution = (_a = anyEntry.attribution) == null ? void 0 : _a[0];
-      report({
-        type: "longtask",
-        duration: entry.duration,
-        timestamp: Date.now(),
-        extra: {
-          startTime: entry.startTime,
-          blockingTime: Math.max(0, entry.duration - 50),
-          name: attribution == null ? void 0 : attribution.name,
-          containerType: attribution == null ? void 0 : attribution.containerType
-        }
-      });
-    }
-  });
-  observer.observe({ entryTypes: ["longtask"] });
+var queue = [];
+var flushing = false;
+function enqueue(payload) {
+  queue.push(payload);
+  scheduleFlush();
+}
+function scheduleFlush() {
+  if (flushing) return;
+  flushing = true;
+  requestIdleCallback(
+    () => {
+      flush();
+      flushing = false;
+    },
+    { timeout: 2e3 }
+  );
+}
+function flush() {
+  if (!queue.length) return;
+  const batch = queue.splice(0, 20);
+  reporterFn == null ? void 0 : reporterFn(batch.length === 1 ? batch[0] : batch);
 }
 
 // src/init.ts
@@ -87,7 +89,6 @@ function initCore(options) {
   });
   initReporter(options.reporter);
   initSampler((_a = options.sampleRate) != null ? _a : 1);
-  initLongTaskObserver();
 }
 
 export { getContext, initCore, report, setRoute, setUserId };

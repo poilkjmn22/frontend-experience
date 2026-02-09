@@ -2,6 +2,7 @@ import { vitalsPlugin } from '@whnz/frontend-experience-vitals';
 import { errorPlugin } from '@whnz/frontend-experience-error';
 import { cssPlugin } from '@whnz/frontend-experience-css';
 import { routePlugin } from './route';
+import { longTaskPlugin } from './longtask';
 
 export interface Plugin {
   name: string;
@@ -22,6 +23,7 @@ export function spaPreset(
       keySelectors: options.keySelectors,
       detectWhiteScreen: true
     }),
-    routePlugin()
+    routePlugin(),
+    longTaskPlugin(),
   ];
 }

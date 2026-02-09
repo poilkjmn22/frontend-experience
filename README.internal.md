@@ -144,6 +144,11 @@ docker run -d \
   -p 9000:9000 \
   clickhouse/clickhouse-server
 
+Start clickhouse-server with:
+clickhouse start --pid-path var/run/clickhouse-server --config-path etc/clickhouse-server --binary-path usr/local/bin
+
+Start clickhouse-client with:
+ clickhouse-client --password
 初始化表：
 
 docker exec -i clickhouse clickhouse-client \

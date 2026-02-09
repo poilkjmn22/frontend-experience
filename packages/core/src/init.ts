@@ -2,7 +2,6 @@ import { InitCoreOptions } from './types';
 import { initContext } from './context';
 import { initReporter } from './reporter';
 import { initSampler } from './sampler';
-import {initLongTaskObserver} from "./longtask";
 
 let inited = false;
 export function initCore(options: InitCoreOptions) {
@@ -16,5 +15,4 @@ export function initCore(options: InitCoreOptions) {
   });
   initReporter(options.reporter);
   initSampler(options.sampleRate ?? 1);
-  initLongTaskObserver();
 }

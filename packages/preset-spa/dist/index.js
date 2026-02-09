@@ -46,6 +46,40 @@ function routePlugin() {
     }
   };
 }
+var lastReportTime = 0;
+function initLongTaskObserver(options) {
+  if (!PerformanceObserver.supportedEntryTypes.includes("longtask")) return;
+  const observer = new PerformanceObserver((list) => {
+    const now = performance.now();
+    if (now - lastReportTime < (5e3)) return;
+    const entries = list.getEntries().filter((e) => e.duration > (100));
+    if (!entries.length) return;
+    const totalBlocking = entries.reduce(
+      (sum, e) => sum + Math.max(0, e.duration - 50),
+      0
+    );
+    report({
+      type: "longtask",
+      duration: totalBlocking,
+      timestamp: Date.now(),
+      extra: {
+        startTime: entries[0].startTime,
+        blockingTime: totalBlocking,
+        count: entries.length
+      }
+    });
+    lastReportTime = now;
+  });
+  observer.observe({ entryTypes: ["longtask"] });
+}
+function longTaskPlugin() {
+  return {
+    name: "longtask",
+    setup() {
+      initLongTaskObserver();
+    }
+  };
+}
 
 // src/index.ts
 function spaPreset(options = {}) {
@@ -56,7 +90,8 @@ function spaPreset(options = {}) {
       keySelectors: options.keySelectors,
       detectWhiteScreen: true
     }),
-    routePlugin()
+    routePlugin(),
+    longTaskPlugin()
   ];
 }
 
