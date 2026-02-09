@@ -52,7 +52,6 @@ function initLongTaskObserver(options) {
     const entries = list.getEntries().filter((e) => e.duration > ((options == null ? void 0 : options.blockingThreshold) || 50));
     if (!entries.length) return;
     entries.forEach((entry) => {
-      console.log(entry, "longtask entry");
       report({
         type: "longtask",
         duration: entry.duration,

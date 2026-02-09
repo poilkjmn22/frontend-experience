@@ -14,7 +14,7 @@ function initLongTaskObserver(options?: LongTaskObserverInit) {
 
     if (!entries.length) return;
     entries.forEach((entry) => {
-      console.log(entry, 'longtask entry');
+      // console.log(entry, 'longtask entry');
       report({
         type: 'longtask',
         duration: entry.duration,
