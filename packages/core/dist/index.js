@@ -45,7 +45,8 @@ function initReporter(fn) {
             "Content-Type": "application/json"
           },
           body: JSON.stringify(event),
-          keepalive: true
+          keepalive: true,
+          credentials: "omit"
         }).catch(() => {
         });
       }

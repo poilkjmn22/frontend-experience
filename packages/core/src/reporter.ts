@@ -19,6 +19,7 @@ export function initReporter(fn: string | ((event: any) => void)) {
           },
           body: JSON.stringify(event),
           keepalive: true,
+          credentials: 'omit',
         }).catch(() => {
           // core 永远不能抛异常
         });

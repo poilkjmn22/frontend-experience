@@ -93,6 +93,7 @@ function parseBody(body) {
 async function reportRoute(app2) {
   app2.post("/api/experience/report", async (req, reply) => {
     const rawBody = parseBody(req.body);
+    console.dir(rawBody, "error");
     const parsed = reportSchema.safeParse(rawBody);
     if (!parsed.success) {
       return reply.code(400).send({ error: parsed.error });
@@ -113,7 +114,7 @@ async function reportRoute(app2) {
 // src/server.ts
 function createServer() {
   const app2 = Fastify({ logger: true });
-  app2.register(cors, { origin: true });
+  app2.register(cors, { origin: ["http://localhost:5173"], methods: ["POST", "OPTIONS"] });
   app2.register(reportRoute);
   return app2;
 }

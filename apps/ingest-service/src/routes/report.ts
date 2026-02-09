@@ -16,6 +16,7 @@ function parseBody(body: unknown) {
 export async function reportRoute(app: FastifyInstance) {
   app.post('/api/experience/report', async (req, reply) => {
     const rawBody = parseBody(req.body);
+    console.dir(rawBody, 'error');
     const parsed = reportSchema.safeParse(rawBody);
     if (!parsed.success) {
       return reply.code(400).send({ error: parsed.error });
