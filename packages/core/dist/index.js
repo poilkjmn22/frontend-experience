@@ -34,15 +34,12 @@ function initReporter(fn) {
   if (typeof fn === "string") {
     reporterFn = (event) => {
       if (navigator.sendBeacon) {
-        navigator.sendBeacon(
-          fn,
-          new Blob([JSON.stringify(event)], { type: "application/json" })
-        );
+        navigator.sendBeacon(fn, JSON.stringify(event));
       } else {
         fetch(fn, {
           method: "POST",
           headers: {
-            "Content-Type": "application/json"
+            "Content-Type": "text/plain;charset=UTF-8"
           },
           body: JSON.stringify(event),
           keepalive: true,

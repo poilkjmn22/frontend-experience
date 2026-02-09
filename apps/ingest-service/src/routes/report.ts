@@ -9,8 +9,8 @@ function parseBody(body: unknown) {
     try {
       return JSON.parse(body);
     } catch (e) {
-      throw new Error('Invalid JSON');
-    } 
+      return body;
+    }
   }
 }
 export async function reportRoute(app: FastifyInstance) {

@@ -86,7 +86,7 @@ function parseBody(body) {
     try {
       return JSON.parse(body);
     } catch (e) {
-      throw new Error("Invalid JSON");
+      return body;
     }
   }
 }
@@ -114,7 +114,18 @@ async function reportRoute(app2) {
 // src/server.ts
 function createServer() {
   const app2 = Fastify({ logger: true });
-  app2.register(cors, { origin: ["http://localhost:5173"], methods: ["POST", "OPTIONS"] });
+  app2.addContentTypeParser(
+    "text/plain",
+    { parseAs: "string" },
+    (req, body, done) => {
+      try {
+        done(null, JSON.parse(body));
+      } catch (e) {
+        done(null, body);
+      }
+    }
+  );
+  app2.register(cors, { origin: true, methods: ["POST", "OPTIONS"] });
   app2.register(reportRoute);
   return app2;
 }
