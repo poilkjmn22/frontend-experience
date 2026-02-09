@@ -12,7 +12,6 @@ export function initReporter(fn: string | ((event: any) => void)) {
   }
 }
 export function report(event: ExperienceEvent) {
-  console.log('reporting event', event);
   if (!reporterFn) return;
   if (!shouldSample()) return;
   const payload = {
@@ -21,7 +20,8 @@ export function report(event: ExperienceEvent) {
     timestamp: event.timestamp || Date.now(),
   };
   try {
-    enqueue(payload);
+    reporterFn(payload);
+    // enqueue(payload);
   } catch (e) {
     // core 永远不能抛异常
   }

@@ -40,7 +40,6 @@ function initReporter(fn) {
   }
 }
 function report(event) {
-  console.log("reporting event", event);
   if (!reporterFn) return;
   if (!shouldSample()) return;
   const payload = {
@@ -49,44 +48,11 @@ function report(event) {
     timestamp: event.timestamp || Date.now()
   };
   try {
-    enqueue(payload);
+    reporterFn(payload);
   } catch (e) {
   }
 }
 var queue = [];
-var scheduled = false;
-var flushing = false;
-function enqueue(payload) {
-  queue.push(payload);
-  scheduleFlush();
-}
-function scheduleFlush() {
-  if (scheduled) return;
-  scheduled = true;
-  setTimeout(
-    () => {
-      scheduled = false;
-      flushLoop();
-    },
-    1e3
-  );
-}
-function flushLoop() {
-  if (flushing) return;
-  flushing = true;
-  try {
-    while (queue.length) {
-      const batch = queue.splice(0, 20);
-      reporterFn == null ? void 0 : reporterFn(batch.length === 1 ? batch[0] : batch);
-      if (queue.length) {
-        scheduleFlush();
-        break;
-      }
-    }
-  } finally {
-    flushing = false;
-  }
-}
 window.addEventListener("visibilitychange", () => {
   if (document.visibilityState === "hidden") {
     flushSync();
