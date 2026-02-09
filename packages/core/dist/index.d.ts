@@ -18,7 +18,7 @@ interface InitCoreOptions {
     app: string;
     version: string;
     env: Env;
-    reporter: (event: ExperienceEvent & ExperienceContext) => void;
+    reporter: string | ((event: ExperienceEvent & ExperienceContext) => void);
     sampleRate?: number;
 }
 

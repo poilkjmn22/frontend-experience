@@ -40,6 +40,7 @@ function initReporter(fn) {
   }
 }
 function report(event) {
+  console.log("reporting event", event);
   if (!reporterFn) return;
   if (!shouldSample()) return;
   const payload = {

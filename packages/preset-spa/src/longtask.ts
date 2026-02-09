@@ -2,7 +2,7 @@ import { report } from '@whnz/frontend-experience-core';
 
 let lastReportTime = 0;
 
-interface LongTaskObserverInit {
+export interface LongTaskObserverInit {
   reportInterval?: number; // 上报间隔，默认 5000ms
   blockingThreshold?: number; // 阻塞时间阈值，默认 100ms
 }
@@ -44,11 +44,11 @@ function initLongTaskObserver(options?: LongTaskObserverInit) {
   observer.observe({ entryTypes: ['longtask'] });
 }
 
-export function longTaskPlugin() {
+export function longTaskPlugin(options?: LongTaskObserverInit) {
   return {
     name: 'longtask',
     setup() {
-      initLongTaskObserver();
+      initLongTaskObserver(options);
     },
   };
 }

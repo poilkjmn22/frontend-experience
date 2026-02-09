@@ -51,8 +51,8 @@ function initLongTaskObserver(options) {
   if (!PerformanceObserver.supportedEntryTypes.includes("longtask")) return;
   const observer = new PerformanceObserver((list) => {
     const now = performance.now();
-    if (now - lastReportTime < (5e3)) return;
-    const entries = list.getEntries().filter((e) => e.duration > (100));
+    if (now - lastReportTime < ((options == null ? void 0 : options.reportInterval) || 5e3)) return;
+    const entries = list.getEntries().filter((e) => e.duration > ((options == null ? void 0 : options.blockingThreshold) || 100));
     if (!entries.length) return;
     const totalBlocking = entries.reduce(
       (sum, e) => sum + Math.max(0, e.duration - 50),
@@ -72,11 +72,11 @@ function initLongTaskObserver(options) {
   });
   observer.observe({ entryTypes: ["longtask"] });
 }
-function longTaskPlugin() {
+function longTaskPlugin(options) {
   return {
     name: "longtask",
     setup() {
-      initLongTaskObserver();
+      initLongTaskObserver(options);
     }
   };
 }
@@ -91,7 +91,10 @@ function spaPreset(options = {}) {
       detectWhiteScreen: true
     }),
     routePlugin(),
-    longTaskPlugin()
+    longTaskPlugin({
+      reportInterval: options.reportInterval,
+      blockingThreshold: options.blockingThreshold
+    })
   ];
 }
 

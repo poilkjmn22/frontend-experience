@@ -1,8 +1,13 @@
+interface LongTaskObserverInit {
+    reportInterval?: number;
+    blockingThreshold?: number;
+}
+
 interface Plugin {
     name: string;
     setup(): void;
 }
-interface SpaPresetOptions {
+interface SpaPresetOptions extends LongTaskObserverInit {
     keySelectors?: string[];
 }
 declare function spaPreset(options?: SpaPresetOptions): Plugin[];

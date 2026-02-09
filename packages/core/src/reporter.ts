@@ -12,6 +12,7 @@ export function initReporter(fn: string | ((event: any) => void)) {
   }
 }
 export function report(event: ExperienceEvent) {
+  console.log('reporting event', event);
   if (!reporterFn) return;
   if (!shouldSample()) return;
   const payload = {

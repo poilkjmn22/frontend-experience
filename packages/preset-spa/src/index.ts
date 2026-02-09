@@ -2,14 +2,14 @@ import { vitalsPlugin } from '@whnz/frontend-experience-vitals';
 import { errorPlugin } from '@whnz/frontend-experience-error';
 import { cssPlugin } from '@whnz/frontend-experience-css';
 import { routePlugin } from './route';
-import { longTaskPlugin } from './longtask';
+import { longTaskPlugin , LongTaskObserverInit } from './longtask';
 
 export interface Plugin {
   name: string;
   setup(): void;
 }
 
-export interface SpaPresetOptions {
+export interface SpaPresetOptions extends LongTaskObserverInit {
   keySelectors?: string[];
 }
 
@@ -24,6 +24,9 @@ export function spaPreset(
       detectWhiteScreen: true
     }),
     routePlugin(),
-    longTaskPlugin(),
+    longTaskPlugin({
+      reportInterval: options.reportInterval,
+      blockingThreshold: options.blockingThreshold,
+    }),
   ];
 }
