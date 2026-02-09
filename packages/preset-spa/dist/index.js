@@ -46,29 +46,27 @@ function routePlugin() {
     }
   };
 }
-var lastReportTime = 0;
 function initLongTaskObserver(options) {
   if (!PerformanceObserver.supportedEntryTypes.includes("longtask")) return;
   const observer = new PerformanceObserver((list) => {
-    const now = performance.now();
-    if (now - lastReportTime < ((options == null ? void 0 : options.reportInterval) || 5e3)) return;
     const entries = list.getEntries().filter((e) => e.duration > ((options == null ? void 0 : options.blockingThreshold) || 100));
     if (!entries.length) return;
-    const totalBlocking = entries.reduce(
-      (sum, e) => sum + Math.max(0, e.duration - 50),
-      0
-    );
-    report({
-      type: "longtask",
-      duration: totalBlocking,
-      timestamp: Date.now(),
-      extra: {
-        startTime: entries[0].startTime,
-        blockingTime: totalBlocking,
-        count: entries.length
-      }
+    entries.forEach((entry) => {
+      console.log(entry, "longtask entry");
+      report({
+        type: "longtask",
+        duration: entry.duration,
+        timestamp: Date.now(),
+        extra: {
+          startTime: entry.startTime,
+          blockingTime: Math.max(
+            0,
+            entry.duration - ((options == null ? void 0 : options.blockingThreshold) || 100)
+          ),
+          name: entry.name
+        }
+      });
     });
-    lastReportTime = now;
   });
   observer.observe({ entryTypes: ["longtask"] });
 }
