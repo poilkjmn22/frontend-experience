@@ -49,7 +49,7 @@ function routePlugin() {
 function initLongTaskObserver(options) {
   if (!PerformanceObserver.supportedEntryTypes.includes("longtask")) return;
   const observer = new PerformanceObserver((list) => {
-    const entries = list.getEntries().filter((e) => e.duration > ((options == null ? void 0 : options.blockingThreshold) || 100));
+    const entries = list.getEntries().filter((e) => e.duration > ((options == null ? void 0 : options.blockingThreshold) || 50));
     if (!entries.length) return;
     entries.forEach((entry) => {
       console.log(entry, "longtask entry");
@@ -61,7 +61,7 @@ function initLongTaskObserver(options) {
           startTime: entry.startTime,
           blockingTime: Math.max(
             0,
-            entry.duration - ((options == null ? void 0 : options.blockingThreshold) || 100)
+            entry.duration - ((options == null ? void 0 : options.blockingThreshold) || 50)
           ),
           name: entry.name
         }

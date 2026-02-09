@@ -27,6 +27,8 @@ export function report(event: ExperienceEvent) {
   }
 }
 const queue: any[] = [];
+
+let scheduled = false;
 let flushing = false;
 
 function enqueue(payload: any) {
@@ -35,20 +37,46 @@ function enqueue(payload: any) {
 }
 
 function scheduleFlush() {
-  if (flushing) return;
-  flushing = true;
+  if (scheduled) return;
+  scheduled = true;
 
   requestIdleCallback(
     () => {
-      flush();
-      flushing = false;
+      scheduled = false;
+      flushLoop();
     },
     { timeout: 2000 },
   );
 }
 
-function flush() {
+function flushLoop() {
+  if (flushing) return;
+  flushing = true;
+
+  try {
+    while (queue.length) {
+      const batch = queue.splice(0, 20);
+      reporterFn?.(batch.length === 1 ? batch[0] : batch);
+
+      // 给浏览器一次喘息机会（避免长任务）
+      if (queue.length) {
+        scheduleFlush();
+        break;
+      }
+    }
+  } finally {
+    flushing = false;
+  }
+}
+
+window.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'hidden') {
+    flushSync();
+  }
+});
+
+function flushSync() {
   if (!queue.length) return;
-  const batch = queue.splice(0, 20);
-  reporterFn?.(batch.length === 1 ? batch[0] : batch);
+  const batch = queue.splice(0);
+  reporterFn?.(batch);
 }

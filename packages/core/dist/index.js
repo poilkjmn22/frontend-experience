@@ -54,26 +54,48 @@ function report(event) {
   }
 }
 var queue = [];
+var scheduled = false;
 var flushing = false;
 function enqueue(payload) {
   queue.push(payload);
   scheduleFlush();
 }
 function scheduleFlush() {
-  if (flushing) return;
-  flushing = true;
+  if (scheduled) return;
+  scheduled = true;
   requestIdleCallback(
     () => {
-      flush();
-      flushing = false;
+      scheduled = false;
+      flushLoop();
     },
     { timeout: 2e3 }
   );
 }
-function flush() {
+function flushLoop() {
+  if (flushing) return;
+  flushing = true;
+  try {
+    while (queue.length) {
+      const batch = queue.splice(0, 20);
+      reporterFn == null ? void 0 : reporterFn(batch.length === 1 ? batch[0] : batch);
+      if (queue.length) {
+        scheduleFlush();
+        break;
+      }
+    }
+  } finally {
+    flushing = false;
+  }
+}
+window.addEventListener("visibilitychange", () => {
+  if (document.visibilityState === "hidden") {
+    flushSync();
+  }
+});
+function flushSync() {
   if (!queue.length) return;
-  const batch = queue.splice(0, 20);
-  reporterFn == null ? void 0 : reporterFn(batch.length === 1 ? batch[0] : batch);
+  const batch = queue.splice(0);
+  reporterFn == null ? void 0 : reporterFn(batch);
 }
 
 // src/init.ts

@@ -1,7 +1,7 @@
 import { report } from '@whnz/frontend-experience-core';
 
 export interface LongTaskObserverInit {
-  blockingThreshold?: number; // 阻塞时间阈值，默认 100ms
+  blockingThreshold?: number; // 阻塞时间阈值，默认 50ms
 }
 
 function initLongTaskObserver(options?: LongTaskObserverInit) {
@@ -10,7 +10,7 @@ function initLongTaskObserver(options?: LongTaskObserverInit) {
   const observer = new PerformanceObserver((list) => {
     const entries = list
       .getEntries()
-      .filter((e) => e.duration > (options?.blockingThreshold || 100)); // 🔥 关键阈值
+      .filter((e) => e.duration > (options?.blockingThreshold || 50)); // 🔥 关键阈值
 
     if (!entries.length) return;
     entries.forEach((entry) => {
@@ -23,7 +23,7 @@ function initLongTaskObserver(options?: LongTaskObserverInit) {
           startTime: entry.startTime,
           blockingTime: Math.max(
             0,
-            entry.duration - (options?.blockingThreshold || 100),
+            entry.duration - (options?.blockingThreshold || 50),
           ),
           name: entry.name,
         },
