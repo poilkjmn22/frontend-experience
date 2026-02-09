@@ -33,7 +33,22 @@ var reporterFn = null;
 function initReporter(fn) {
   if (typeof fn === "string") {
     reporterFn = (event) => {
-      navigator.sendBeacon(fn, JSON.stringify(event));
+      if (navigator.sendBeacon) {
+        navigator.sendBeacon(
+          fn,
+          new Blob([JSON.stringify(event)], { type: "application/json" })
+        );
+      } else {
+        fetch(fn, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify(event),
+          keepalive: true
+        }).catch(() => {
+        });
+      }
     };
   } else {
     reporterFn = fn;

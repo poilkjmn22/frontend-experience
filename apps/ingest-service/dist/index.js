@@ -8,17 +8,32 @@ var reportSchema = z.object({
   app: z.string(),
   env: z.string(),
   version: z.string().optional(),
-  type: z.enum(["vitals", "error", "longtask", "route", "css"]),
-  name: z.string(),
+  type: z.enum([
+    "fcp",
+    "lcp",
+    "cls",
+    "inp",
+    "longtask",
+    "route",
+    "react-render",
+    "js-error",
+    "promise-error",
+    "react-error",
+    "white-screen",
+    "css-visibility-error",
+    "css-covered"
+  ]),
+  name: z.string().optional(),
   value: z.number().optional(),
   rating: z.string().optional(),
   route: z.string().optional(),
   component: z.string().optional(),
   message: z.string().optional(),
   stack: z.string().optional(),
-  ts: z.number(),
+  timestamp: z.number(),
   sample: z.number().optional(),
-  device: z.object({ ua: z.string().optional(), network: z.string().optional() }).optional()
+  device: z.object({ ua: z.string().optional(), network: z.string().optional() }).optional(),
+  extra: z.string().optional()
 });
 
 // src/utils/sample.ts
@@ -31,20 +46,21 @@ function shouldSample(rate = 1) {
 // src/utils/normalize.ts
 function normalize(p) {
   return {
-    ts: new Date(p.ts),
     app: p.app,
     env: p.env,
-    version: p.version ?? "",
+    version: p.version ?? "unknown",
     type: p.type,
-    name: p.name,
+    name: p.name ?? "",
     value: p.value ?? 0,
     rating: p.rating ?? "",
     route: p.route ?? "",
     component: p.component ?? "",
     message: p.message ?? "",
     stack: p.stack ?? "",
-    ua: p.device?.ua ?? "",
-    network: p.device?.network ?? ""
+    timestamp: p.timestamp,
+    sample: p.sample ?? 1,
+    device: p.device ?? {},
+    extra: typeof p.extra === "string" ? p.extra : JSON.stringify(p.extra)
   };
 }
 
@@ -54,7 +70,7 @@ import { createClient } from "@clickhouse/client";
 // src/env.ts
 var env = {
   port: Number(process.env.PORT ?? 3e3),
-  clickhouseHost: process.env.CLICKHOUSE_HOST ?? "http://localhost:8123",
+  clickhouseHost: process.env.CLICKHOUSE_HOST ?? "http://localhost:9000",
   database: process.env.CLICKHOUSE_DB ?? "experience"
 };
 
@@ -65,11 +81,21 @@ var clickhouse = createClient({
 });
 
 // src/routes/report.ts
+function parseBody(body) {
+  if (typeof body === "string") {
+    try {
+      return JSON.parse(body);
+    } catch (e) {
+      throw new Error("Invalid JSON");
+    }
+  }
+}
 async function reportRoute(app2) {
   app2.post("/api/experience/report", async (req, reply) => {
-    const parsed = reportSchema.safeParse(req.body);
+    const rawBody = parseBody(req.body);
+    const parsed = reportSchema.safeParse(rawBody);
     if (!parsed.success) {
-      return reply.code(400).send({ error: "invalid payload" });
+      return reply.code(400).send({ error: parsed.error });
     }
     const payload = parsed.data;
     if (!shouldSample(payload.sample)) {

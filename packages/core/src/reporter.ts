@@ -5,7 +5,24 @@ let reporterFn: ((event: any) => void) | null = null;
 export function initReporter(fn: string | ((event: any) => void)) {
   if (typeof fn === 'string') {
     reporterFn = (event) => {
-      navigator.sendBeacon(fn, JSON.stringify(event));
+      if (navigator.sendBeacon) {
+        navigator.sendBeacon(
+          fn,
+          new Blob([JSON.stringify(event)], { type: 'application/json' }),
+        );
+      } else {
+        // Fallback to fetch
+        fetch(fn, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(event),
+          keepalive: true,
+        }).catch(() => {
+          // core 永远不能抛异常
+        });
+      }
     };
   } else {
     reporterFn = fn;
@@ -40,13 +57,10 @@ function scheduleFlush() {
   if (scheduled) return;
   scheduled = true;
 
-  setTimeout(
-    () => {
-      scheduled = false;
-      flushLoop();
-    },
-    1000,
-  );
+  setTimeout(() => {
+    scheduled = false;
+    flushLoop();
+  }, 1000);
 }
 
 function flushLoop() {

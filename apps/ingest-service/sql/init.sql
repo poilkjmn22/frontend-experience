@@ -1,25 +1,25 @@
 CREATE DATABASE IF NOT EXISTS experience;
 
 CREATE TABLE IF NOT EXISTS experience.events (
-  ts DateTime64(3),
-  app LowCardinality(String),
-  env LowCardinality(String),
+  app String,
+  env String,
   version String,
-
-  type LowCardinality(String),     -- vitals | error | longtask | route | css
-  name String,                     -- LCP | CLS | JS_ERROR
+  type String,
+  name String,
   value Float64,
-  rating LowCardinality(String),
-
+  rating String,
   route String,
   component String,
-
   message String,
   stack String,
-
-  ua String,
-  network String
+  timestamp DateTime64(3, 'UTC'),
+  sample Float64,
+  device Nested (
+    ua String,
+    network String
+  ),
+  extra String
 )
 ENGINE = MergeTree
-PARTITION BY toDate(ts)
-ORDER BY (app, env, type, name, ts);
+PARTITION BY toDate(timestamp)
+ORDER BY (app, env, type, name, timestamp);
