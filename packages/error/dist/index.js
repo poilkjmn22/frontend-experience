@@ -6,11 +6,13 @@ function errorPlugin() {
     name: "error",
     setup() {
       window.addEventListener("error", (event) => {
+        var _a;
         report({
           type: "js-error",
           timestamp: Date.now(),
+          message: event.message,
+          stack: (_a = event.error) == null ? void 0 : _a.stack,
           extra: {
-            message: event.message,
             file: event.filename,
             line: event.lineno,
             col: event.colno

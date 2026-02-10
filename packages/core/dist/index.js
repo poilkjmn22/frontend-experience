@@ -11,8 +11,8 @@ function initContext(partial) {
 function setRoute(route) {
   context.route = route;
 }
-function setUserId(userId) {
-  context.userId = userId;
+function setDeviceInfo(ua, network) {
+  context.device = { ua, network };
 }
 function getContext() {
   return { ...context };
@@ -55,6 +55,7 @@ function initReporter(fn) {
 function report(event) {
   if (!reporterFn) return;
   if (!shouldSample()) return;
+  setRoute(location.pathname);
   const payload = {
     ...event,
     ...getContext(),
@@ -80,19 +81,23 @@ function flushSync() {
 // src/init.ts
 var inited = false;
 function initCore(options) {
-  var _a;
+  var _a, _b;
   if (inited) return;
   inited = true;
   initContext({
     app: options.app,
     version: options.version,
     env: options.env,
-    route: location.pathname
+    route: location.pathname,
+    device: {
+      ua: navigator.userAgent,
+      network: ((_a = navigator.connection) == null ? void 0 : _a.effectiveType) || ""
+    }
   });
   initReporter(options.reporter);
-  initSampler((_a = options.sampleRate) != null ? _a : 1);
+  initSampler((_b = options.sample) != null ? _b : 1);
 }
 
-export { getContext, initCore, report, setRoute, setUserId };
+export { getContext, initCore, report, setDeviceInfo, setRoute };
 //# sourceMappingURL=index.js.map
 //# sourceMappingURL=index.js.map

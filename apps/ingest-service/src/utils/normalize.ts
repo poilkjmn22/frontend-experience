@@ -1,20 +1,26 @@
 import { ReportPayload } from '../schema/report';
-export function normalize(p: ReportPayload) {
+export function normalize(payload: ReportPayload) {
   return {
-    app: p.app,
-    env: p.env,
-    version: p.version ?? 'unknown',
-    type: p.type,
-    name: p.name ?? '',
-    value: p.value ?? 0,
-    rating: p.rating ?? '',
-    route: p.route ?? '',
-    component: p.component ?? '',
-    message: p.message ?? '',
-    stack: p.stack ?? '',
-    timestamp: p.timestamp,
-    sample: p.sample ?? 1,
-    device: p.device ?? {},
-    extra: typeof p.extra === 'string' ? p.extra : JSON.stringify(p.extra),
+    app: payload.app,
+    env: payload.env,
+    version: payload.version ?? '',
+    type: payload.type,
+    name: payload.name ?? '',
+    route: payload.route ?? '',
+    component: payload.component ?? '',
+
+    timestamp: new Date(payload.timestamp),
+    value: payload.value ?? 0,
+    duration: payload.duration ?? 0,
+    rating: payload.rating ?? '',
+
+    message: payload.message ?? '',
+    stack: payload.stack ?? '',
+
+    ua: payload.device?.ua ?? '',
+    network: payload.device?.network ?? '',
+
+    sample: payload.sample ?? 1,
+    extra: JSON.stringify(payload.extra ?? {}),
   };
 }

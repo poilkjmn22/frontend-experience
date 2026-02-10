@@ -8,9 +8,9 @@ var ErrorBoundary = class extends React.Component {
     report({
       type: "react-error",
       timestamp: Date.now(),
+      message: error.message,
+      stack: error.stack,
       extra: {
-        message: error.message,
-        stack: error.stack,
         componentStack: info.componentStack
       }
     });

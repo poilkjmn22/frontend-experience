@@ -1,0 +1,90 @@
+{
+  "uid": "frontend-experience",
+  "title": "Frontend Experience Monitoring",
+  "timezone": "browser",
+  "schemaVersion": 38,
+  "version": 1,
+  "refresh": "10s",
+  "tags": ["frontend", "performance", "experience"],
+  "templating": {
+    "list": [
+      {
+        "name": "page",
+        "type": "query",
+        "datasource": "ClickHouse",
+        "query": "SELECT DISTINCT page FROM experience.events ORDER BY page",
+        "refresh": 1,
+        "includeAll": true,
+        "multi": true
+      }
+    ]
+  },
+  "panels": [
+    {
+      "type": "timeseries",
+      "title": "FCP (ms)",
+      "gridPos": { "x": 0, "y": 0, "w": 8, "h": 8 },
+      "datasource": "ClickHouse",
+      "targets": [
+        {
+          "query": "SELECT toStartOfMinute(timestamp) AS t, avg(value) AS fcp FROM experience.events WHERE type='vitals' AND name='FCP' AND ($page = 'All' OR page IN ($page)) GROUP BY t ORDER BY t"
+        }
+      ]
+    },
+    {
+      "type": "timeseries",
+      "title": "LCP (ms)",
+      "gridPos": { "x": 8, "y": 0, "w": 8, "h": 8 },
+      "datasource": "ClickHouse",
+      "targets": [
+        {
+          "query": "SELECT toStartOfMinute(timestamp) AS t, avg(value) AS lcp FROM experience.events WHERE type='vitals' AND name='LCP' AND ($page = 'All' OR page IN ($page)) GROUP BY t ORDER BY t"
+        }
+      ]
+    },
+    {
+      "type": "timeseries",
+      "title": "INP (ms)",
+      "gridPos": { "x": 16, "y": 0, "w": 8, "h": 8 },
+      "datasource": "ClickHouse",
+      "targets": [
+        {
+          "query": "SELECT toStartOfMinute(timestamp) AS t, avg(value) AS inp FROM experience.events WHERE type='vitals' AND name='INP' AND ($page = 'All' OR page IN ($page)) GROUP BY t ORDER BY t"
+        }
+      ]
+    },
+    {
+      "type": "timeseries",
+      "title": "Long Task Count",
+      "gridPos": { "x": 0, "y": 8, "w": 12, "h": 8 },
+      "datasource": "ClickHouse",
+      "targets": [
+        {
+          "query": "SELECT toStartOfMinute(timestamp) AS t, count() AS longtask FROM experience.events WHERE type='longtask' AND ($page = 'All' OR page IN ($page)) GROUP BY t ORDER BY t"
+        }
+      ]
+    },
+    {
+      "type": "timeseries",
+      "title": "JS Error Count",
+      "gridPos": { "x": 12, "y": 8, "w": 12, "h": 8 },
+      "datasource": "ClickHouse",
+      "targets": [
+        {
+          "query": "SELECT toStartOfMinute(timestamp) AS t, count() AS errors FROM experience.events WHERE type='error' AND ($page = 'All' OR page IN ($page)) GROUP BY t ORDER BY t"
+        }
+      ]
+    },
+    {
+      "type": "table",
+      "title": "Top Error Messages",
+      "gridPos": { "x": 0, "y": 16, "w": 24, "h": 8 },
+      "datasource": "ClickHouse",
+      "targets": [
+        {
+          "query": "SELECT JSONExtractString(data, 'message') AS message, count() AS cnt FROM experience.events WHERE type='error' GROUP BY message ORDER BY cnt DESC LIMIT 10"
+        }
+      ]
+    }
+  ]
+}

@@ -1,5 +1,5 @@
 import { ExperienceEvent } from './types';
-import { getContext } from './context';
+import { getContext, setRoute } from './context';
 import { shouldSample } from './sampler';
 let reporterFn: ((event: any) => void) | null = null;
 export function initReporter(fn: string | ((event: any) => void)) {
@@ -29,6 +29,7 @@ export function initReporter(fn: string | ((event: any) => void)) {
 export function report(event: ExperienceEvent) {
   if (!reporterFn) return;
   if (!shouldSample()) return;
+  setRoute(location.pathname);
   const payload = {
     ...event,
     ...getContext(),

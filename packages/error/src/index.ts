@@ -13,8 +13,9 @@ export function errorPlugin(): Plugin {
         report({
           type: 'js-error',
           timestamp: Date.now(),
+          message: event.message,
+          stack: event.error?.stack,
           extra: {
-            message: event.message,
             file: event.filename,
             line: event.lineno,
             col: event.colno,

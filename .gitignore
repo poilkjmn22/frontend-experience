@@ -21,3 +21,9 @@ yarn.lock
 *.un~
 *.swp
 *.swo
+
+# grafana
+/apps/ingest-service/grafana-12.3.2
+
+# logs
+Logs*

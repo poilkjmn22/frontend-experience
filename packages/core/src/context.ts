@@ -11,8 +11,8 @@ export function initContext(partial: Partial<ExperienceContext>) {
 export function setRoute(route: string) {
   context.route = route;
 }
-export function setUserId(userId: string) {
-  context.userId = userId;
+export function setDeviceInfo(ua: string, network: string) {
+  context.device = { ua, network };
 }
 export function getContext(): ExperienceContext {
   return { ...context };

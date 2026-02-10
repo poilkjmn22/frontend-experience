@@ -12,7 +12,11 @@ export function initCore(options: InitCoreOptions) {
     version: options.version,
     env: options.env,
     route: location.pathname,
+    device: {
+      ua: navigator.userAgent,
+      network: (navigator as any).connection?.effectiveType || '',
+    },
   });
   initReporter(options.reporter);
-  initSampler(options.sampleRate ?? 1);
+  initSampler(options.sample ?? 1);
 }
