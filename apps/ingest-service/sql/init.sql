@@ -1,6 +1,6 @@
 CREATE DATABASE IF NOT EXISTS experience;
 
-CREATE TABLE IF NOT EXISTS events (
+CREATE TABLE IF NOT EXISTS experience.events (
   -- ===== 基础维度 =====
   app             LowCardinality(String),
   env             LowCardinality(String),
@@ -13,8 +13,7 @@ CREATE TABLE IF NOT EXISTS events (
   component       String,
 
   -- ===== 时间 =====
-  timestamp       DateTime64(3),
-  date            Date MATERIALIZED toDate(timestamp),
+  timestamp       UInt64,
 
   -- ===== 核心数值 =====
   value           Float64,
@@ -34,10 +33,9 @@ CREATE TABLE IF NOT EXISTS events (
   sample          Float32,
 
   -- ===== 扩展字段 =====
-  extra           String
+  extra           JSON
 
 )
 ENGINE = MergeTree
-PARTITION BY date
 ORDER BY (app, env, type, timestamp)
 SETTINGS index_granularity = 8192;

@@ -9,7 +9,7 @@ export function normalize(payload: ReportPayload) {
     route: payload.route ?? '',
     component: payload.component ?? '',
 
-    timestamp: new Date(payload.timestamp),
+    timestamp: payload.timestamp,
     value: payload.value ?? 0,
     duration: payload.duration ?? 0,
     rating: payload.rating ?? '',
@@ -21,6 +21,6 @@ export function normalize(payload: ReportPayload) {
     network: payload.device?.network ?? '',
 
     sample: payload.sample ?? 1,
-    extra: JSON.stringify(payload.extra ?? {}),
+    extra: payload.extra ?? {},
   };
 }

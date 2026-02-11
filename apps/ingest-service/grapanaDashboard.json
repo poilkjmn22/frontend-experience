@@ -1,88 +1,152 @@
 {
-  "uid": "frontend-experience",
+  "id": null,
+  "uid": "frontend-experience-safe",
   "title": "Frontend Experience Monitoring",
   "timezone": "browser",
   "schemaVersion": 38,
   "version": 1,
-  "refresh": "10s",
-  "tags": ["frontend", "performance", "experience"],
+  "refresh": "30s",
+  "tags": ["frontend", "experience", "vitals", "performance"],
   "templating": {
     "list": [
       {
-        "name": "page",
+        "name": "app",
         "type": "query",
         "datasource": "ClickHouse",
-        "query": "SELECT DISTINCT page FROM experience.events ORDER BY page",
         "refresh": 1,
+        "query": "SELECT DISTINCT app FROM events ORDER BY app",
+        "current": {
+          "selected": true,
+          "text": "demo-spa",
+          "value": "demo-spa"
+        }
+      },
+      {
+        "name": "env",
+        "type": "query",
+        "datasource": "ClickHouse",
+        "refresh": 1,
+        "query": "SELECT DISTINCT env FROM events WHERE app = '$app'",
+        "current": {
+          "selected": true,
+          "text": "dev",
+          "value": "dev"
+        }
+      },
+      {
+        "name": "route",
+        "type": "query",
+        "datasource": "ClickHouse",
+        "refresh": 2,
+        "query": "SELECT DISTINCT route FROM events WHERE app='$app' AND env='$env' AND route != ''",
         "includeAll": true,
-        "multi": true
+        "multi": true,
+        "allValue": "*",
+        "current": {
+          "selected": true,
+          "text": "All",
+          "value": "*"
+        }
       }
     ]
   },
   "panels": [
     {
-      "type": "timeseries",
-      "title": "FCP (ms)",
-      "gridPos": { "x": 0, "y": 0, "w": 8, "h": 8 },
+      "type": "stat",
+      "title": "Health Score",
+      "gridPos": { "x": 0, "y": 0, "w": 6, "h": 4 },
       "datasource": "ClickHouse",
       "targets": [
         {
-          "query": "SELECT toStartOfMinute(timestamp) AS t, avg(value) AS fcp FROM experience.events WHERE type='vitals' AND name='FCP' AND ($page = 'All' OR page IN ($page)) GROUP BY t ORDER BY t"
+          "query": "SELECT round(100\n  - countIf(type LIKE '%error%') * 0.5\n  - countIf(type='longtask' AND duration > 200) * 0.1, 1)\nFROM events\nWHERE app='$app'\n  AND env='$env'\n  AND $__timeFilter(toDateTime(timestamp / 1000))"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "thresholds": {
+            "steps": [
+              { "color": "red", "value": null },
+              { "color": "yellow", "value": 60 },
+              { "color": "green", "value": 80 }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "type": "stat",
+      "title": "Error Rate",
+      "gridPos": { "x": 6, "y": 0, "w": 6, "h": 4 },
+      "datasource": "ClickHouse",
+      "targets": [
+        {
+          "query": "SELECT if(count()=0, 0,\n  countIf(type LIKE '%error%') / count()\n)\nFROM events\nWHERE app='$app'\n  AND env='$env'\n  AND $__timeFilter(toDateTime(timestamp / 1000))"
+        }
+      ]
+    },
+    {
+      "type": "stat",
+      "title": "LCP P75 (ms)",
+      "gridPos": { "x": 0, "y": 4, "w": 4, "h": 4 },
+      "datasource": "ClickHouse",
+      "targets": [
+        {
+          "query": "SELECT quantile(0.75)(value)\nFROM events\nWHERE type='lcp'\n  AND app='$app'\n  AND env='$env'\n  AND $__timeFilter(toDateTime(timestamp / 1000))"
+        }
+      ]
+    },
+    {
+      "type": "stat",
+      "title": "FCP P75 (ms)",
+      "gridPos": { "x": 4, "y": 4, "w": 4, "h": 4 },
+      "datasource": "ClickHouse",
+      "targets": [
+        {
+          "query": "SELECT quantile(0.75)(value)\nFROM events\nWHERE type='fcp'\n  AND app='$app'\n  AND env='$env'\n  AND $__timeFilter(toDateTime(timestamp / 1000))"
+        }
+      ]
+    },
+    {
+      "type": "stat",
+      "title": "CLS P75",
+      "gridPos": { "x": 8, "y": 4, "w": 4, "h": 4 },
+      "datasource": "ClickHouse",
+      "targets": [
+        {
+          "query": "SELECT quantile(0.75)(value)\nFROM events\nWHERE type='cls'\n  AND app='$app'\n  AND env='$env'\n  AND $__timeFilter(toDateTime(timestamp / 1000))"
         }
       ]
     },
     {
       "type": "timeseries",
-      "title": "LCP (ms)",
-      "gridPos": { "x": 8, "y": 0, "w": 8, "h": 8 },
+      "title": "Long Task Count (>200ms)",
+      "gridPos": { "x": 0, "y": 8, "w": 12, "h": 6 },
       "datasource": "ClickHouse",
       "targets": [
         {
-          "query": "SELECT toStartOfMinute(timestamp) AS t, avg(value) AS lcp FROM experience.events WHERE type='vitals' AND name='LCP' AND ($page = 'All' OR page IN ($page)) GROUP BY t ORDER BY t"
-        }
-      ]
-    },
-    {
-      "type": "timeseries",
-      "title": "INP (ms)",
-      "gridPos": { "x": 16, "y": 0, "w": 8, "h": 8 },
-      "datasource": "ClickHouse",
-      "targets": [
-        {
-          "query": "SELECT toStartOfMinute(timestamp) AS t, avg(value) AS inp FROM experience.events WHERE type='vitals' AND name='INP' AND ($page = 'All' OR page IN ($page)) GROUP BY t ORDER BY t"
-        }
-      ]
-    },
-    {
-      "type": "timeseries",
-      "title": "Long Task Count",
-      "gridPos": { "x": 0, "y": 8, "w": 12, "h": 8 },
-      "datasource": "ClickHouse",
-      "targets": [
-        {
-          "query": "SELECT toStartOfMinute(timestamp) AS t, count() AS longtask FROM experience.events WHERE type='longtask' AND ($page = 'All' OR page IN ($page)) GROUP BY t ORDER BY t"
-        }
-      ]
-    },
-    {
-      "type": "timeseries",
-      "title": "JS Error Count",
-      "gridPos": { "x": 12, "y": 8, "w": 12, "h": 8 },
-      "datasource": "ClickHouse",
-      "targets": [
-        {
-          "query": "SELECT toStartOfMinute(timestamp) AS t, count() AS errors FROM experience.events WHERE type='error' AND ($page = 'All' OR page IN ($page)) GROUP BY t ORDER BY t"
+          "query": "SELECT\n  $__timeGroup(toDateTime(timestamp / 1000), '1m') AS t,\n  countIf(duration > 200)\nFROM events\nWHERE type='longtask'\n  AND app='$app'\n  AND env='$env'\n  AND $__timeFilter(toDateTime(timestamp / 1000))\nGROUP BY t\nORDER BY t"
         }
       ]
     },
     {
       "type": "table",
-      "title": "Top Error Messages",
-      "gridPos": { "x": 0, "y": 16, "w": 24, "h": 8 },
+      "title": "Top JS Errors",
+      "gridPos": { "x": 0, "y": 14, "w": 12, "h": 6 },
       "datasource": "ClickHouse",
       "targets": [
         {
-          "query": "SELECT JSONExtractString(data, 'message') AS message, count() AS cnt FROM experience.events WHERE type='error' GROUP BY message ORDER BY cnt DESC LIMIT 10"
+          "query": "SELECT\n  message,\n  count() AS cnt\nFROM events\nWHERE type='js-error'\n  AND app='$app'\n  AND env='$env'\n  AND $__timeFilter(toDateTime(timestamp / 1000))\nGROUP BY message\nORDER BY cnt DESC\nLIMIT 10"
+        }
+      ]
+    },
+    {
+      "type": "table",
+      "title": "Slow Routes (LCP P75)",
+      "gridPos": { "x": 0, "y": 20, "w": 12, "h": 6 },
+      "datasource": "ClickHouse",
+      "targets": [
+        {
+          "query": "SELECT\n  route,\n  quantile(0.75)(value) AS lcp_p75\nFROM events\nWHERE type='lcp'\n  AND route != ''\n  AND app='$app'\n  AND env='$env'\n  AND $__timeFilter(toDateTime(timestamp / 1000))\nGROUP BY route\nORDER BY lcp_p75 DESC\nLIMIT 10"
         }
       ]
     }
