@@ -27,3 +27,7 @@ yarn.lock
 
 # logs
 Logs*
+
+# 大文件
+*.tar.gz
+clickhouse
