@@ -229,6 +229,141 @@ spaPreset().forEach((plugin) => plugin.setup());
 4. 固化 dashboard 模板
 5. 补最小 demo 与 smoke test
 
+## Grafana / ClickHouse 典型查询口径
+
+以下 SQL 可在 **Grafana** 中直接基于 `experience.events` 明细表使用，便于搭建或校验 **Dashboard** 面板。
+
+---
+
+### Web Vitals 按版本分位数对比
+
+```sql
+SELECT
+    version,
+    type,
+    quantile(0.75)(value) AS p75,
+    quantile(0.95)(value) AS p95
+FROM experience.events
+WHERE
+    app = 'order-spa'
+    AND env = 'prod'
+    AND type IN ('fcp', 'lcp', 'cls', 'inp')
+    AND timestamp >= toUnixTimestamp(now() - INTERVAL 7 DAY) * 1000
+GROUP BY version, type
+ORDER BY version, type
+```
+
+---
+
+### 每日 LCP 趋势
+
+```sql
+SELECT
+    toDate(fromUnixTimestamp64Milli(timestamp)) AS day,
+    quantile(0.75)(value) AS lcp_p75
+FROM experience.events
+WHERE
+    app = 'order-spa'
+    AND env = 'prod'
+    AND type = 'lcp'
+    AND timestamp >= toUnixTimestamp(now() - INTERVAL 30 DAY) * 1000
+GROUP BY day
+ORDER BY day
+```
+
+---
+
+### 卡顿（longtask）按路由分布
+
+```sql
+SELECT
+    route,
+    count() AS count,
+    avg(duration) AS avg_duration,
+    quantile(0.95)(duration) AS p95_duration
+FROM experience.events
+WHERE
+    app = 'order-spa'
+    AND env = 'prod'
+    AND type = 'longtask'
+    AND timestamp >= toUnixTimestamp(now() - INTERVAL 7 DAY) * 1000
+GROUP BY route
+ORDER BY count DESC
+LIMIT 20
+```
+
+---
+
+### JS 错误 Top 10（按错误消息聚合）
+
+```sql
+SELECT
+    message,
+    count() AS error_count,
+    max(fromUnixTimestamp64Milli(timestamp)) AS last_seen
+FROM experience.events
+WHERE
+    app = 'order-spa'
+    AND env = 'prod'
+    AND type IN ('js-error', 'promise-error')
+    AND timestamp >= toUnixTimestamp(now() - INTERVAL 7 DAY) * 1000
+GROUP BY message
+ORDER BY error_count DESC
+LIMIT 10
+```
+
+---
+
+### 白屏出现情况
+
+```sql
+SELECT
+    toDate(fromUnixTimestamp64Milli(timestamp)) AS day,
+    count() AS white_screen_count,
+    uniqExact(route) AS affected_routes
+FROM experience.events
+WHERE
+    app = 'order-spa'
+    AND env = 'prod'
+    AND type = 'white-screen'
+    AND timestamp >= toUnixTimestamp(now() - INTERVAL 14 DAY) * 1000
+GROUP BY day
+ORDER BY day
+```
+
+---
+
+### 版本发布前后性能对比（手工指定版本号）
+
+```sql
+SELECT
+    version,
+    type,
+    count() AS sample_count,
+    quantile(0.5)(value) AS p50,
+    quantile(0.75)(value) AS p75,
+    quantile(0.95)(value) AS p95
+FROM experience.events
+WHERE
+    app = 'order-spa'
+    AND env = 'prod'
+    AND type IN ('fcp', 'lcp', 'cls', 'inp')
+    AND version IN ('1.2.2', '1.2.3')
+GROUP BY version, type
+ORDER BY type, version
+```
+
+---
+
+### 查询注意事项
+
+- `timestamp` 在 **ClickHouse** 中为 `UInt64` 毫秒时间戳，过滤时常用 `toUnixTimestamp(...) * 1000` 与事件侧对齐。
+- `value` 对应性能分值或毫秒数，`duration` 对应耗时类事件的持续时间。
+- `extra` 为 JSON 字段，在 **Grafana** 中可用 `JSONExtractString(extra, 'key')` 等函数提取。
+- 当前无预聚合表，大时间范围查询请注意 **ClickHouse** 负载。
+
+---
+
 ## 维护建议
 
 每次变更后，至少做一次人工核对：

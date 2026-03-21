@@ -233,7 +233,7 @@ ingest 不适合做：
 - 想直接引入 Kafka、Flink、画像、回放，这会明显突破当前系统边界
 - 想在不改 schema 的情况下承载复杂分析场景
 - 想把 React 能力误认为默认 preset 已包含
-- 想依赖 `createExperience()`，但源码还没有该入口
+- 仍按旧文档假设存在 `createExperience()`（当前官方 README 已改为 `initCore()` + `spaPreset()`）
 - 想做“发布回归自动告警”，但当前链路还缺共享 schema、聚合和规则层
 
 ## 输出风格
